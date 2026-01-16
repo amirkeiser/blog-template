@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Blog - Magic UI";
+export const alt = "YourUniPath Blog";
 export const size = {
   width: 1200,
   height: 630,
@@ -12,31 +12,32 @@ const getAssetData = async () => {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-    const fontUrls = {
+    const assetUrls = {
       clashDisplay: `${baseUrl}/fonts/ClashDisplay-Semibold.ttf`,
       cabinetGrotesk: `${baseUrl}/fonts/CabinetGrotesk-Medium.ttf`,
-      logo: `${baseUrl}/magicui-logo.png`,
+      logo: `${baseUrl}/yup-logo.png`,
     };
 
     const [clashDisplayRes, cabinetGroteskRes, logoRes] = await Promise.all([
-      fetch(fontUrls.clashDisplay),
-      fetch(fontUrls.cabinetGrotesk),
-      fetch(fontUrls.logo),
+      fetch(assetUrls.clashDisplay),
+      fetch(assetUrls.cabinetGrotesk),
+      fetch(assetUrls.logo),
     ]);
 
-    if (!clashDisplayRes.ok || !cabinetGroteskRes.ok || !logoRes.ok) {
+    if (!clashDisplayRes.ok || !cabinetGroteskRes.ok) {
       return null;
     }
 
-    const [clashDisplay, cabinetGrotesk, logoImage] = await Promise.all([
+    const [clashDisplay, cabinetGrotesk] = await Promise.all([
       clashDisplayRes.arrayBuffer(),
       cabinetGroteskRes.arrayBuffer(),
-      logoRes.arrayBuffer(),
     ]);
 
-    const logoBase64 = `data:image/png;base64,${Buffer.from(logoImage).toString(
-      "base64"
-    )}`;
+    let logoBase64: string | undefined;
+    if (logoRes.ok) {
+      const logoImage = await logoRes.arrayBuffer();
+      logoBase64 = `data:image/png;base64,${Buffer.from(logoImage).toString("base64")}`;
+    }
 
     return {
       clashDisplay,
@@ -104,18 +105,31 @@ export default async function Image() {
           }}
         >
           <div style={styles.container}>
-            <img
-              src={
-                assetData?.logoBase64 ||
-                `${process.env.NEXT_PUBLIC_SITE_URL}/magicui-logo.png`
-              }
-              alt="MagicUI Logo"
-              width={100}
-              height={100}
-            />
+            {assetData?.logoBase64 ? (
+              <img
+                src={assetData.logoBase64}
+                alt="YourUniPath"
+                height={80}
+                style={{ marginBottom: "10px" }}
+              />
+            ) : (
+              <div
+                style={{
+                  backgroundColor: "#21437d",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "8px",
+                  fontSize: "24px",
+                  fontWeight: 600,
+                  marginBottom: "10px",
+                }}
+              >
+                YourUniPath
+              </div>
+            )}
             <h1 style={styles.title}>Blog</h1>
             <p style={styles.description}>
-              A blog about design, development, and other things.
+              Helping students find the perfect university course.
             </p>
           </div>
         </div>

@@ -24,7 +24,7 @@ const getAssetData = async (authorAvatar?: string) => {
     const assetUrls = {
       clashDisplay: `${baseUrl}/fonts/ClashDisplay-Semibold.ttf`,
       cabinetGrotesk: `${baseUrl}/fonts/CabinetGrotesk-Medium.ttf`,
-      logo: `${baseUrl}/magicui-logo.png`,
+      logo: `${baseUrl}/yup-logo.png`,
       ...(authorAvatar && { authorAvatar: `${baseUrl}${authorAvatar}` }),
     };
 
@@ -39,30 +39,32 @@ const getAssetData = async (authorAvatar?: string) => {
     }
 
     const responses = await Promise.all(fetchPromises);
-    const [clashDisplayRes, cabinetGroteskRes, logoRes, authorAvatarRes] =
-      responses;
+    const [clashDisplayRes, cabinetGroteskRes, logoRes, authorAvatarRes] = responses;
 
-    if (!clashDisplayRes.ok || !cabinetGroteskRes.ok || !logoRes.ok) {
+    if (!clashDisplayRes.ok || !cabinetGroteskRes.ok) {
       return null;
     }
 
     const assetPromises = [
       clashDisplayRes.arrayBuffer(),
       cabinetGroteskRes.arrayBuffer(),
-      logoRes.arrayBuffer(),
     ];
+
+    if (logoRes && logoRes.ok) {
+      assetPromises.push(logoRes.arrayBuffer());
+    }
 
     if (authorAvatarRes && authorAvatarRes.ok) {
       assetPromises.push(authorAvatarRes.arrayBuffer());
     }
 
     const assetBuffers = await Promise.all(assetPromises);
-    const [clashDisplay, cabinetGrotesk, logoImage, authorAvatarImage] =
-      assetBuffers;
+    const [clashDisplay, cabinetGrotesk, logoImage, authorAvatarImage] = assetBuffers;
 
-    const logoBase64 = `data:image/png;base64,${Buffer.from(logoImage).toString(
-      "base64"
-    )}`;
+    let logoBase64: string | undefined;
+    if (logoImage) {
+      logoBase64 = `data:image/png;base64,${Buffer.from(logoImage).toString("base64")}`;
+    }
 
     let authorAvatarBase64: string | undefined;
     if (authorAvatarImage) {
@@ -199,16 +201,28 @@ export default async function Image({ params }: { params: { slug: string } }) {
         >
           <div style={styles.container}>
             <div style={styles.titleContainer}>
-              <img
-                src={
-                  assetData?.logoBase64 ||
-                  `${process.env.NEXT_PUBLIC_SITE_URL}/magicui-logo.png`
-                }
-                alt="MagicUI Logo"
-                width={80}
-                height={80}
-                style={styles.logo}
-              />
+              {assetData?.logoBase64 ? (
+                <img
+                  src={assetData.logoBase64}
+                  alt="YourUniPath"
+                  height={60}
+                  style={styles.logo}
+                />
+              ) : (
+                <div
+                  style={{
+                    backgroundColor: "#21437d",
+                    color: "white",
+                    padding: "8px 16px",
+                    borderRadius: "6px",
+                    fontSize: "20px",
+                    fontWeight: 600,
+                    marginBottom: "20px",
+                  }}
+                >
+                  YourUniPath
+                </div>
+              )}
               <h1 style={styles.title}>{page.data.title}</h1>
               {page.data.description && (
                 <p style={styles.summary}>{page.data.description}</p>

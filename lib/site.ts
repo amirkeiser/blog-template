@@ -1,8 +1,9 @@
 export const siteConfig = {
-  name: "Magic UI Blog",
-  url: "https://blog-magicui.vercel.app",
+  name: "YourUniPath Blog",
+  url: "https://blog.yourunipath.com",
+  mainSiteUrl: "https://yourunipath.com",
   description:
-    "Modern React and web development tutorials, insights, and best practices.",
+    "Helping students discover the right university courses and degree programs for their future.",
 };
 
 export type SiteConfig = typeof siteConfig;
